@@ -34,31 +34,75 @@ void Game::Play()
 		Draw->BlankLine();
 		DrawMine();
 
-		Draw->Text(std::string(1, (*ActivePlayer)->GetChar()) + " it is your go. Do you want to go " 
-			"(1) down into the moon, or (2) back to the ship?");
-		int Response = 0;
-		while (Response < 1 || Response > 2)
+		if ((*ActivePlayer)->IsGoingDown())
 		{
-			Draw->UserPrompt();
-			ValidInputInt(Response, Draw->GetUserPrompt());
-		}
-		if (Response == 2)
-		{
-			(*ActivePlayer)->GoUp();
-		}
-		int Movement = RollDice();
-		if ((*ActivePlayer)->GetDepth() + RollDice() > TreasureList.size())
-		{
-			(*ActivePlayer)->SetDepth(TreasureList.size());
+			Draw->Text(std::string(1, (*ActivePlayer)->GetChar()) + " it is your go. Do you want to go "
+				"(1) down into the moon, or (2) back to the ship?");
+			int Response = 0;
+			while (Response < 1 || Response > 2)
+			{
+				Draw->UserPrompt();
+				ValidInputInt(Response, Draw->GetUserPrompt());
+			}
+			if (Response == 2)
+			{
+				(*ActivePlayer)->GoUp();
+			}
 		}
 		else
 		{
-			(*ActivePlayer)->Move(RollDice());
+			Draw->Text(std::string(1, (*ActivePlayer)->GetChar()) + " returns to the ship.");
+			std::cin.ignore();
 		}
-		++ActivePlayer;
-		if (ActivePlayer == PlayerList.end())
+		
+		// Move the player.
+		MovePlayer();
+
+		// Check if they want to pick up where they have landed.
+		if (((*ActivePlayer)->GetDepth() != 0) && (TreasureList[(*ActivePlayer)->GetDepth() - 1] != nullptr))
 		{
-			ActivePlayer = PlayerList.begin();
+			Draw->BlankLine();
+			Draw->MultiLineText(Ship->GetFileText());
+			Draw->BlankLine();
+			DrawMine();
+			Draw->Text("Do you want to pick up the treasure? (1) Yes or (2) no.");
+			int Response = 0;
+			while (Response < 1 || Response > 2)
+			{
+				Draw->UserPrompt();
+				ValidInputInt(Response, Draw->GetUserPrompt());
+			}
+			if (Response == 1)
+			{
+				(*ActivePlayer)->PickUpTreasure(TreasureList[(*ActivePlayer)->GetDepth() - 1]);
+				TreasureList[(*ActivePlayer)->GetDepth() - 1] = nullptr;
+			}
+		}
+
+		// Check if all players are back home, if not, change the players and go again.
+		// We make sure we do not select players which are already home.
+		int Counter = 0;
+		for (auto it = PlayerList.begin(); it < PlayerList.end(); ++it)
+		{
+			if ((*it)->GetDepth() == 0)
+			{
+				++Counter;
+			}
+		}
+		if (Counter == PlayerList.size())
+		{
+			EndRound();
+		}
+		else
+		{
+			do
+			{
+				++ActivePlayer;
+				if (ActivePlayer == PlayerList.end())
+				{
+					ActivePlayer = PlayerList.begin();
+				}
+			} while ((*ActivePlayer)->IsBack());
 		}
 	}
 }
@@ -303,21 +347,131 @@ void Game::NewPlayers(int HowMany)
 
 void Game::DrawMine()
 {
-	std::string Output = std::string(TreasureList.size(), ' ');
+	std::string Output = std::string(TreasureList.size() + 1, ' ');
 	for (auto it = PlayerList.begin(); it < PlayerList.end(); ++it)
 	{
-		if ((*it)->GetDepth() > 0)
+		Output[(*it)->GetDepth()] = (*it)->GetChar();
+	}
+	Output.append("\n^");
+	for (auto it = TreasureList.begin(); it < TreasureList.end(); ++it)
+	{
+		if ((*it) == nullptr)
 		{
-			Output[(*it)->GetDepth()] = (*it)->GetChar();
+			Output.append(std::string(1, '0'));
+		}
+		else
+		{
+			Output.append(std::string(1, (*it)->GetChar()));
 		}
 	}
 	Output.append("\n");
-	for (auto it = TreasureList.begin(); it < TreasureList.end(); ++it)
-	{
-		Output.append(std::string(1, (*it)->GetChar()));
-	}
-	Output.append("\n");
 	Draw->MultiLineText(Output);
+}
+
+bool Game::PlayerOfDepth(int Depth)
+{
+	for (auto it = PlayerList.begin(); it < PlayerList.end(); ++it)
+	{
+		if ((*it)->GetDepth() == Depth)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void Game::MovePlayer()
+{
+	int Movement = RollDice();
+	// We go through each piece of movement and check if anything needs to be done.
+	for (int i = 0; i < Movement; ++i)
+	{
+		// First we check if moving once puts the player over the end of the Treasure List
+		// or back to the ship.
+		if ((*ActivePlayer)->MoveResult(1) > TreasureList.size())
+		{
+			break;
+		}
+		else if ((*ActivePlayer)->MoveResult(1) == 0)
+		{
+			(*ActivePlayer)->SetDepth(0);
+			break;
+		}
+		// Now we deal with a potential clash with another player.
+		int CurrentPosition = (*ActivePlayer)->GetDepth();
+		int PotentialPosition = (*ActivePlayer)->MoveResult(1);
+		if (PlayerOfDepth(PotentialPosition))
+		{
+			while (PlayerOfDepth(PotentialPosition))
+			{
+				int Increment = ((*ActivePlayer)->IsGoingDown()) ? 1 : -1;
+				PotentialPosition += Increment;
+			}
+			if ((*ActivePlayer)->MoveResult(PotentialPosition - CurrentPosition) >
+				TreasureList.size())
+			{
+				(*ActivePlayer)->SetDepth(CurrentPosition);
+				break;
+			}
+			else if ((*ActivePlayer)->MoveResult(abs(PotentialPosition - CurrentPosition)) < 0)
+			{
+				(*ActivePlayer)->SetDepth(0);
+				break;
+			}
+			else
+			{
+				(*ActivePlayer)->Move(abs(PotentialPosition - CurrentPosition));
+			}
+		}
+		else
+		{
+			(*ActivePlayer)->Move(1);
+		}
+	}
+	if ((*ActivePlayer)->GetDepth() == 0)
+	{
+		(*ActivePlayer)->SetBack(true);
+	}
+}
+
+void Game::EndRound()
+{
+	Draw->BlankLine();
+	Draw->MultiLineText(Ship->GetFileText());
+	Draw->BlankLine();
+	DrawMine();
+
+	std::string Scores;
+	for (auto it = PlayerList.begin(); it < PlayerList.end(); ++it)
+	{
+		if (!(*it)->HasTreasure())
+		{
+			Draw->Text("Player " + std::string(1, (*it)->GetChar()) + " picked up no mineral deposits!");
+		}
+		else
+		{
+			Draw->Text("Player " + std::string(1, (*it)->GetChar()) + " picked up " + (*it)->PrintTreasures());
+			(*it)->UpdateScore();
+			(*it)->DropTreasures();
+		}
+		Scores.append("Player " + std::string(1, (*it)->GetChar()) + " now has " + std::to_string((*it)->GetScore()) + " points.\n");
+		(*it)->SetBack(false);
+		(*it)->GoDown();
+	}
+	Draw->MultiLineText(Scores);
+	for (auto it = TreasureList.begin(); it < TreasureList.end(); )
+	{
+		if ((*it) == nullptr)
+		{
+			it = TreasureList.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+	ActivePlayer = PlayerList.begin();
+	std::cin.ignore();
 }
 
 /* Utility Functions */

@@ -40,6 +40,9 @@ private:
 	void NewTreasures();
 	void NewPlayers(int HowMany);
 	void DrawMine();
+	bool PlayerOfDepth(int Depth);
+	void MovePlayer();
+	void EndRound();
 
 	// Utility functions:
 	void ValidInputChar(char &OutputChar, std::string ErrorMessage);
