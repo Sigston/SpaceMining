@@ -4,14 +4,22 @@
 class Treasure
 {
 public:
-	Treasure(std::string TreasureType, unsigned int TreasureValue);
+	/* CONSTRUCTOR */
+	Treasure(std::string TreasureType, unsigned int TreasureValue, std::string TreasureSymbol);
 
+	/* INLINE FUNCTIONS - GETTERS */
 	std::string GetType() { return mType; }
 	unsigned int GetValue() { return mValue; }
-	char GetChar() { return mChar; }
+	std::string GetSymbol() { return mSymbol; }
+	bool IsTaken() { return mIsTaken; }
+
+	/* INLINE FUNCTIONS - SETTERS */
+	void Take() { mIsTaken = true; }
 private:
+	/* PRIVATE VARIABLES */
 	std::string mType;
 	unsigned int mValue;
-	char mChar;
+	std::string mSymbol;
+	bool mIsTaken;
 };
 

@@ -115,24 +115,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Board.h" />
     <ClInclude Include="Drawer.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="HelperFunctions.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Random.h" />
     <ClInclude Include="Treasure.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Board.cpp" />
     <ClCompile Include="Drawer.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="HelperFunctions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Random.cpp" />
     <ClCompile Include="Treasure.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Ship.txt" />
+    <Text Include="Treasures.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

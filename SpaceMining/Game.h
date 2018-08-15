@@ -3,8 +3,8 @@
 #include "File.h"
 #include "Treasure.h"
 #include "Player.h"
+#include "Random.h"
 #include <string>
-#include <list>
 #include <vector>
 
 class Game
@@ -13,14 +13,17 @@ public:
 	Game();
 	~Game();
 
-	void Play();
 	void Initialize();
 	void Introduction();
 	bool Menu();
+	void Play();
 private:
+	/* PRIVATE VARIABLES */
 	Drawer * Draw;
 	File * Ship;
-
+	File * TreasurePicsFile;
+	Random * Randomizer;
+	std::vector<std::string> TreasurePics;
 	std::vector<std::shared_ptr<Player>> PlayerList;
 	std::vector<std::shared_ptr<Treasure>> TreasureList;
 	std::vector<std::shared_ptr<Player>>::iterator ActivePlayer;
@@ -35,20 +38,24 @@ private:
 		std::string UserPrompt;
 	} Settings;
 
-	void PrintRules();
-	void SetSettings();
-	int RollDice();
+	/* PRIVATE METHODS */
+
+	/* Game Logic */
 	void Refresh();
-	void NewTreasures();
-	void NewPlayers(int HowMany);
-	void DrawBoard();
-	bool PlayerOfDepth(int Depth);
+		void NewTreasures();
+		void NewPlayers(int HowMany);
 	void MovePlayer();
 	void EndRound();
+	void EndGame();
 
-	// Utility functions:
-	void ValidInputChar(char &OutputChar, std::string ErrorMessage);
-	void ValidInputInt(int &OutputInt, std::string ErrorMessage);
-	void ValidInputUInt(unsigned int &OutputInt, std::string ErrorMessage);
-	void ValidInputStr(std::string &OutputStr, std::string ErrorMessage);
+	/* Menu Logic */
+	void SetSettings();
+
+	/* Drawing Functions */
+	void PrintRules();
+	void PrintScores(char WinChar, int TopScore);
+	void DrawBoard();
+
+	/* Useful Functions */
+	bool PlayerOfDepth(int Depth);
 };

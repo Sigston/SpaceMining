@@ -1,22 +1,9 @@
 #include "Treasure.h"
 
-Treasure::Treasure(std::string TreasureType, unsigned int TreasureValue) :
-	mType(TreasureType), mValue(TreasureValue)
+/* CONSTRUCTOR */
+
+// Fills the private varaibles for the given treasure.
+Treasure::Treasure(std::string TreasureType, unsigned int TreasureValue, std::string TreasureSymbol) :
+	mType(TreasureType), mValue(TreasureValue), mSymbol(TreasureSymbol), mIsTaken(false)
 {
-	if (TreasureType == "Coppernium")
-	{
-		mChar = '@';
-	}
-	else if (TreasureType == "Bronzium")
-	{
-		mChar = '#';
-	}
-	else if (TreasureType == "Silverium")
-	{
-		mChar = '$';
-	}
-	else if (TreasureType == "Goldium")
-	{
-		mChar = 156;
-	}
 }

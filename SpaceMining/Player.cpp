@@ -1,41 +1,50 @@
 #include "Player.h"
 
+/* CONSTRUCTOR */
+
+// Sets the char representing the player.
 Player::Player(char PlayerChar) :
 	mPlayerChar(PlayerChar)
 {
 }
 
-// Changes the depth of the player.
-void Player::Move(int Movement) 
-{ 
-	mDepth = MoveResult(Movement);
-}
+/* PUBLIC FUNCTIONS - MOVEMENT */
 
-// Returns the potential depth of any move, without making any changes.
+// Returns the potential depth of any move, without making any changes. Call Move() to change mDepth. Accounts for
+// movement up and down.
 int Player::MoveResult(int Movement)
 {
 	Movement = (mGoingDown) ? Movement : Movement * -1;
 	return(mDepth + Movement);
 }
 
+// Changes the depth of the player based on the given movement.
+void Player::Move(int Movement) 
+{ 
+	mDepth = MoveResult(Movement);
+}
+
+/* PUBLIC FUNCTIONS - TREASURE */
+
 // Adds a pointer to a treasure to the player's list of treasures.
-void Player::PickUpTreasure(std::shared_ptr<Treasure> Treasure)
+void Player::AddTreasure(std::shared_ptr<Treasure> Treasure)
 {
 	mTreasureList.push_back(Treasure);
 }
 
-bool Player::HasTreasure()
+// Removes all treasures from the player.
+void Player::DropTreasures()
 {
-	if (mTreasureList.empty())
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
+	mTreasureList.clear();
 }
 
+// Returns true if the player has any treasures, false if they do not.
+bool Player::HasTreasure()
+{
+	return((mTreasureList.empty()) ? false : true);
+}
+
+// Returns a string listing the player's treasures and their value.
 std::string Player::PrintTreasures()
 {
 	std::string Output;
@@ -54,15 +63,13 @@ std::string Player::PrintTreasures()
 	return Output;
 }
 
+/* PUBLIC FUNCTIONS - SCORE */
+
+// Updates the player's score in accordance with the currently held treasures.
 void Player::UpdateScore()
 {
 	for (auto it = mTreasureList.begin(); it < mTreasureList.end(); ++it)
 	{
 		mScore += (*it)->GetValue();
 	}
-}
-
-void Player::DropTreasures()
-{
-	mTreasureList.clear();
 }

@@ -6,26 +6,37 @@
 class Player
 {
 public:
+	/* CONSTRUCTOR */
 	Player(char PlayerChar);
 
-	int GetDepth() { return(mDepth); }
-	char GetChar() { return(mPlayerChar); }
-	int GetScore() { return(mScore); }
-	bool IsGoingDown() { return mGoingDown; }
-	bool IsBack() { return mIsBack; }
-	void SetDepth(int Depth) { mDepth = Depth; }
-	void SetBack(bool IsBack) { mIsBack = IsBack; }
-	void Move(int Movement);
+	/* PUBLIC FUNCTIONS - MOVEMENT */
 	int MoveResult(int Movement);
+	void Move(int Movement);
+
+	/* PUBLIC FUNCTIONS - TREASURE */
+	void AddTreasure(std::shared_ptr<Treasure> Treasure);
+	void DropTreasures();
+	bool HasTreasure();
+	std::string PrintTreasures();
+
+	/* PUBLIC FUNCTIONS - SCORE */
+	void UpdateScore();
+
+	/* INLINE FUNCTIONS - GETTERS */
+	int GetScore() { return(mScore); }
+	int GetDepth() { return(mDepth); }
+	bool IsGoingDown() { return(mGoingDown); }
+	bool IsBack() { return(mIsBack); }
+	char GetChar() { return(mPlayerChar); }
+	int GetTreasureNum() { return mTreasureList.size(); }
+
+	/* INLINE FUNCTIONS - SETTERS */
+	void SetDepth(int Depth) { mDepth = Depth; }
 	void GoUp() { mGoingDown = false; }
 	void GoDown() { mGoingDown = true; }
-	void PickUpTreasure(std::shared_ptr<Treasure> Treasure);
-	bool HasTreasure();
-	int GetTreasureNum() { return mTreasureList.size(); }
-	std::string PrintTreasures();
-	void DropTreasures();
-	void UpdateScore();
+	void SetBack(bool IsBack) { mIsBack = IsBack; }
 private:
+	/* PRIVATE VARIABLES */
 	int mScore = 0;
 	int mDepth = 0;
 	bool mGoingDown = true;
