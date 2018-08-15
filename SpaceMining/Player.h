@@ -21,6 +21,7 @@ public:
 	void GoDown() { mGoingDown = true; }
 	void PickUpTreasure(std::shared_ptr<Treasure> Treasure);
 	bool HasTreasure();
+	int GetTreasureNum() { return mTreasureList.size(); }
 	std::string PrintTreasures();
 	void DropTreasures();
 	void UpdateScore();

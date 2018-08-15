@@ -24,11 +24,13 @@ private:
 	std::vector<std::shared_ptr<Player>> PlayerList;
 	std::vector<std::shared_ptr<Treasure>> TreasureList;
 	std::vector<std::shared_ptr<Player>>::iterator ActivePlayer;
+	int RoundCounter = 0;
+	int Oxygen = 25;
 
 	struct
 	{
-		unsigned int ScreenWidth = 70;
-		unsigned int Padding = 3;
+		unsigned int ScreenWidth = 80;
+		unsigned int Padding = 5;
 		char ScreenChar = '|';
 		std::string UserPrompt;
 	} Settings;
@@ -39,7 +41,7 @@ private:
 	void Refresh();
 	void NewTreasures();
 	void NewPlayers(int HowMany);
-	void DrawMine();
+	void DrawBoard();
 	bool PlayerOfDepth(int Depth);
 	void MovePlayer();
 	void EndRound();

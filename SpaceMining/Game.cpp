@@ -1,5 +1,5 @@
-// Implement Player class, vector of players and iterator to player whose current go it is.
-// Implement Treasure class (has string of type and an associated value), vector of treasures.
+// Cannot do draws
+// Dropped treasures should go to the end of the line
 
 #include "Game.h"
 #include <time.h>
@@ -29,11 +29,8 @@ void Game::Play()
 	bool IsPlaying = true;
 	while (IsPlaying)
 	{
-		Draw->BlankLine();
-		Draw->MultiLineText(Ship->GetFileText());
-		Draw->BlankLine();
-		DrawMine();
-
+		Oxygen -= (*ActivePlayer)->GetTreasureNum();
+		DrawBoard();
 		if ((*ActivePlayer)->IsGoingDown())
 		{
 			Draw->Text(std::string(1, (*ActivePlayer)->GetChar()) + " it is your go. Do you want to go "
@@ -61,10 +58,7 @@ void Game::Play()
 		// Check if they want to pick up where they have landed.
 		if (((*ActivePlayer)->GetDepth() != 0) && (TreasureList[(*ActivePlayer)->GetDepth() - 1] != nullptr))
 		{
-			Draw->BlankLine();
-			Draw->MultiLineText(Ship->GetFileText());
-			Draw->BlankLine();
-			DrawMine();
+			DrawBoard();
 			Draw->Text("Do you want to pick up the treasure? (1) Yes or (2) no.");
 			int Response = 0;
 			while (Response < 1 || Response > 2)
@@ -79,8 +73,8 @@ void Game::Play()
 			}
 		}
 
-		// Check if all players are back home, if not, change the players and go again.
-		// We make sure we do not select players which are already home.
+		// Check if all players are back home, if not, check if all the oxygen is gone, 
+		// if not, change the players and go again.
 		int Counter = 0;
 		for (auto it = PlayerList.begin(); it < PlayerList.end(); ++it)
 		{
@@ -89,9 +83,13 @@ void Game::Play()
 				++Counter;
 			}
 		}
-		if (Counter == PlayerList.size())
+		if (Counter == PlayerList.size() || Oxygen <= 0)
 		{
 			EndRound();
+			if (RoundCounter == 3)
+			{
+				IsPlaying = false;
+			}
 		}
 		else
 		{
@@ -105,6 +103,28 @@ void Game::Play()
 			} while ((*ActivePlayer)->IsBack());
 		}
 	}
+	// Print who has won.
+	int TopScore = (*PlayerList.begin())->GetScore();
+	char WinChar = (*PlayerList.begin())->GetChar();
+	for (auto it = PlayerList.begin() + 1; it < PlayerList.end(); ++it)
+	{
+		if ((*it)->GetScore() > TopScore)
+		{
+			TopScore = (*it)->GetScore();
+			WinChar = (*it)->GetChar();
+		}
+	}
+	Draw->Seperator();
+	Draw->BlankLine();
+	Draw->CentralLine("GAME OVER");
+	Draw->BlankLine();
+	Draw->Text("Player " + std::string(1, WinChar) + " has won with " + std::to_string(TopScore) + " points. " 
+		"You receive several hundred credits and a free trip home to see your family. The other players must " 
+		"spend the rest of their lives mining minerals in the most distant part of the solar system. They also " 
+		"have to listen to post-Peter Gabriel Genesis albums.");
+	Draw->BlankLine();
+	Draw->Seperator();
+	std::cin.ignore();
 }
 
 // Seeds the random number generator, sets up the drawer, and opens ascii art files.
@@ -345,8 +365,16 @@ void Game::NewPlayers(int HowMany)
 	ActivePlayer = PlayerList.begin();
 }
 
-void Game::DrawMine()
+void Game::DrawBoard()
 {
+	Draw->BlankLine();
+	Draw->Seperator();
+	Draw->BlankLine();
+	std::string ShipString = Ship->GetFileText();
+	size_t Offset = ShipString.find("OXYGEN: ") + std::string("OXYGEN: ").size();
+	ShipString.insert(Offset, std::to_string(Oxygen));
+	Draw->MultiLineText(ShipString);
+	Draw->BlankLine();
 	std::string Output = std::string(TreasureList.size() + 1, ' ');
 	for (auto it = PlayerList.begin(); it < PlayerList.end(); ++it)
 	{
@@ -366,6 +394,9 @@ void Game::DrawMine()
 	}
 	Output.append("\n");
 	Draw->MultiLineText(Output);
+	Draw->BlankLine();
+	Draw->Seperator();
+	Draw->BlankLine();
 }
 
 bool Game::PlayerOfDepth(int Depth)
@@ -382,7 +413,13 @@ bool Game::PlayerOfDepth(int Depth)
 
 void Game::MovePlayer()
 {
+	// Constrain movement if going up by the weight of materials.
 	int Movement = RollDice();
+	if (!(*ActivePlayer)->IsGoingDown())
+	{
+		Movement -= (*ActivePlayer)->GetTreasureNum();
+	}
+
 	// We go through each piece of movement and check if anything needs to be done.
 	for (int i = 0; i < Movement; ++i)
 	{
@@ -436,11 +473,7 @@ void Game::MovePlayer()
 
 void Game::EndRound()
 {
-	Draw->BlankLine();
-	Draw->MultiLineText(Ship->GetFileText());
-	Draw->BlankLine();
-	DrawMine();
-
+	DrawBoard();
 	std::string Scores;
 	for (auto it = PlayerList.begin(); it < PlayerList.end(); ++it)
 	{
@@ -448,13 +481,18 @@ void Game::EndRound()
 		{
 			Draw->Text("Player " + std::string(1, (*it)->GetChar()) + " picked up no mineral deposits!");
 		}
+		else if ((*it)->GetDepth() != 0)
+		{
+			Draw->Text("Player " + std::string(1, (*it)->GetChar()) + " ran out of oxygen and was dragged back to the ship!");
+		}
 		else
 		{
-			Draw->Text("Player " + std::string(1, (*it)->GetChar()) + " picked up " + (*it)->PrintTreasures());
+			Draw->MultiLineText("Player " + std::string(1, (*it)->GetChar()) + " picked up:" + (*it)->PrintTreasures());
 			(*it)->UpdateScore();
 			(*it)->DropTreasures();
 		}
 		Scores.append("Player " + std::string(1, (*it)->GetChar()) + " now has " + std::to_string((*it)->GetScore()) + " points.\n");
+		(*it)->SetDepth(0);
 		(*it)->SetBack(false);
 		(*it)->GoDown();
 	}
@@ -470,6 +508,8 @@ void Game::EndRound()
 			++it;
 		}
 	}
+	++RoundCounter;
+	Oxygen = 25;
 	ActivePlayer = PlayerList.begin();
 	std::cin.ignore();
 }

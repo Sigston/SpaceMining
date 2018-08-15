@@ -39,7 +39,18 @@ bool Player::HasTreasure()
 std::string Player::PrintTreasures()
 {
 	std::string Output;
-
+	if (mTreasureList.empty())
+	{
+		Output = " NOTHING!";
+	}
+	else
+	{
+		for (auto it = mTreasureList.begin(); it < mTreasureList.end(); ++it)
+		{
+			Output.append("\n    " + (*it)->GetType() + " of value " + std::to_string((*it)->GetValue()));
+		}
+		Output.append("\n");
+	}
 	return Output;
 }
 
