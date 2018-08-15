@@ -367,20 +367,38 @@ void Game::NewPlayers(int HowMany)
 
 void Game::DrawBoard()
 {
+	// Padding:
 	Draw->BlankLine();
 	Draw->Seperator();
 	Draw->BlankLine();
+
+	// Put together the ship part of the board.
+	// Get ship string from file:
 	std::string ShipString = Ship->GetFileText();
+	// Put in oxygen data:
 	size_t Offset = ShipString.find("OXYGEN: ") + std::string("OXYGEN: ").size();
 	ShipString.insert(Offset, std::to_string(Oxygen));
+	// Put in score data:
+	Offset = ShipString.find("SCORE: ") + std::string("SCORE: ").size();
+	std::string Scores;
+	for (auto it = PlayerList.begin(); it < PlayerList.end(); ++it)
+	{
+		Scores.append(std::string(1, (*it)->GetChar()) + ": " + std::to_string((*it)->GetScore()) + "   ");
+	}
+	ShipString.insert(Offset, Scores);
+	// Print:
 	Draw->MultiLineText(ShipString);
 	Draw->BlankLine();
+
+	// Put together the list of treasures and player pieces.
+	// Player line:
 	std::string Output = std::string(TreasureList.size() + 1, ' ');
 	for (auto it = PlayerList.begin(); it < PlayerList.end(); ++it)
 	{
 		Output[(*it)->GetDepth()] = (*it)->GetChar();
 	}
 	Output.append("\n^");
+	// Treasure line:
 	for (auto it = TreasureList.begin(); it < TreasureList.end(); ++it)
 	{
 		if ((*it) == nullptr)
@@ -393,7 +411,10 @@ void Game::DrawBoard()
 		}
 	}
 	Output.append("\n");
+	// Print:
 	Draw->MultiLineText(Output);
+
+	// Padding:
 	Draw->BlankLine();
 	Draw->Seperator();
 	Draw->BlankLine();
