@@ -484,6 +484,7 @@ void Game::EndRound()
 		else if ((*it)->GetDepth() != 0)
 		{
 			Draw->Text("Player " + std::string(1, (*it)->GetChar()) + " ran out of oxygen and was dragged back to the ship!");
+			(*it)->DropTreasures();
 		}
 		else
 		{
