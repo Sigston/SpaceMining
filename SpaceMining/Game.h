@@ -2,6 +2,7 @@
 #include "Drawer.h"
 #include "File.h"
 #include "Treasure.h"
+#include "TreasureGroup.h"
 #include "Player.h"
 #include "Random.h"
 #include <string>

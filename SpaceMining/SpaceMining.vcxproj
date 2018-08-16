@@ -122,6 +122,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Treasure.h" />
+    <ClInclude Include="TreasureGroup.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Drawer.cpp" />
@@ -132,6 +133,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Treasure.cpp" />
+    <ClCompile Include="TreasureGroup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Ship.txt" />

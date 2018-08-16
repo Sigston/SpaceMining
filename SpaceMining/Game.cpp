@@ -1,4 +1,4 @@
-// TODO: Cannot do draws; dropped treasures should go to the end of the line.
+// TODO: Cannot do draws.
 
 #include "Game.h"
 #include "HelperFunctions.h"
@@ -358,6 +358,10 @@ void Game::EndRound()
 		else if ((*it)->GetDepth() != 0)
 		{
 			Draw->Text("Player " + std::string(1, (*it)->GetChar()) + " ran out of oxygen and was dragged back to the ship!");
+			if ((*it)->HasTreasure())
+			{
+				TreasureList.push_back(std::shared_ptr<Treasure> (new TreasureGroup(TreasurePics[5], (*it)->GetTreasures())));
+			}
 			if ((*it)->GetDepth() > DeepestDepth)
 			{
 				DeepestDepth = (*it)->GetDepth();
@@ -567,24 +571,23 @@ void Game::DrawBoard()
 	int Begin = 0;
 	int TreasuresPerLine = 8;
 	std::string SymbolString;
-	while (true)
+	bool RemainingTreasures = true;
+	while (RemainingTreasures)
 	{
-		std::string ExtraBit;
+		// We are going through the first if statement regardless and printing a dudd line. FIX
 		if ((Begin + TreasuresPerLine) > TreasureList.size())
 		{
 			DrawTreasures(Begin, TreasureList.size(), Lines);
-			ExtraBit = "";
-			break;
+			RemainingTreasures = false;
 		}
 		else
 		{
 			DrawTreasures(Begin, Begin + TreasuresPerLine, Lines);
-			ExtraBit = "\n";
 			Begin += TreasuresPerLine;
 		}
-		MineString.append(Lines[0] + ExtraBit);
-		MineString.append(Lines[1] + ExtraBit);
-		MineString.append(Lines[2] + ExtraBit + ExtraBit);
+		MineString.append(Lines[0] + "\n");
+		MineString.append(Lines[1] + "\n");
+		MineString.append(Lines[2] + "\n\n");
 		Lines = { "", "", "" };
 	}
 	// Print all of the above:

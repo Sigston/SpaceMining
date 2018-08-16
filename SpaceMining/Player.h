@@ -28,7 +28,8 @@ public:
 	bool IsGoingDown() { return(mGoingDown); }
 	bool IsBack() { return(mIsBack); }
 	char GetChar() { return(mPlayerChar); }
-	int GetTreasureNum() { return mTreasureList.size(); }
+	int GetTreasureNum() { return(mTreasureList.size()); }
+	std::vector<std::shared_ptr<Treasure>> GetTreasures() { return(mTreasureList); }
 
 	/* INLINE FUNCTIONS - SETTERS */
 	void SetDepth(int Depth) { mDepth = Depth; }
