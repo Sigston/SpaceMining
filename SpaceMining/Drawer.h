@@ -12,7 +12,7 @@ public:
 	void MultiLineText(std::string Text);
 	void CentralLine(std::string Text);
 	void Seperator();
-	void BlankLine();
+	void BlankLine(int HowMany = 1);
 	void SpaceSeperator();
 	void UserPrompt();
 

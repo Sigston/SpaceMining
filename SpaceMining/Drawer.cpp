@@ -93,22 +93,25 @@ void Drawer::Seperator()
 }
 
 // Prints a line of spaces according to the given settings.
-void Drawer::BlankLine()
+void Drawer::BlankLine(int HowMany)
 {
-	std::string Output;
-	Output.append(1, mScreenCharacter);
-	Output.append(mScreenSpace - 2, ' ');
-	Output.append(1, mScreenCharacter);
-	Output.append("\n");
-	std::cout << Output;
+	for (int i = 0; i < HowMany; ++i)
+	{
+		std::string Output;
+		Output.append(1, mScreenCharacter);
+		Output.append(mScreenSpace - 2, ' ');
+		Output.append(1, mScreenCharacter);
+		Output.append("\n");
+		std::cout << Output;
+	}
 }
 
 // Prints a line of spaces, the seperator, and a line of spaces.
 void Drawer::SpaceSeperator()
 {
-	Seperator();
 	BlankLine();
 	Seperator();
+	BlankLine();
 }
 
 // Prints the user prompt.

@@ -70,15 +70,11 @@ void Game::Introduction()
 	Draw->Seperator();
 	Draw->BlankLine();
 	Draw->CentralLine("SPACE MINING");
-	Draw->BlankLine();
-	Draw->Seperator();
-	Draw->BlankLine();
+	Draw->SpaceSeperator();
 	Draw->CentralLine("The Mine Is Mine!");
-	Draw->BlankLine();
-	Draw->BlankLine();
+	Draw->BlankLine(2);
 	Draw->CentralLine("A Game By Alex Sigston");
-	Draw->BlankLine();
-	Draw->Seperator();
+	Draw->SpaceSeperator();
 }
 
 // Allows the player to play the game, see the rules, quit, or change settings.
@@ -131,7 +127,6 @@ void Game::Play()
 	{
 		Oxygen -= (*ActivePlayer)->GetTreasureNum();
 		DrawBoard();
-
 		// If the player is going down, check if the player wants to go up or down. Move them.
 		if ((*ActivePlayer)->IsGoingDown())
 		{
@@ -149,7 +144,6 @@ void Game::Play()
 			}
 		}
 		MovePlayer();
-
 		// Check if they want to pick up minerals where they have landed.
 		if (((*ActivePlayer)->GetDepth() != 0) && (!TreasureList[(*ActivePlayer)->GetDepth() - 1]->IsTaken()))
 		{
@@ -166,7 +160,6 @@ void Game::Play()
 				TreasureList[(*ActivePlayer)->GetDepth() - 1]->Take();
 			}
 		}
-
 		// Check if all players are back home, if not, check if all the oxygen is gone, if not, change the players and go again.
 		int Counter = 0;
 		for (auto it = PlayerList.begin(); it < PlayerList.end(); ++it)
@@ -274,7 +267,6 @@ void Game::MovePlayer()
 	{
 		Movement -= (*ActivePlayer)->GetTreasureNum();
 	}
-
 	// We go through each piece of movement and check if anything needs to be done.
 	for (int i = 0; i < Movement; ++i)
 	{
@@ -426,9 +418,7 @@ void Game::SetSettings()
 	bool IsFinished = false;
 	while (!IsFinished)
 	{
-		Draw->BlankLine();
-		Draw->Seperator();
-		Draw->BlankLine();
+		Draw->SpaceSeperator();
 		Draw->Text("Change the (1) Screen Width, (2) Screen Padding, (3) Screen Character, "
 			"(4) save changes and exit, or (5) restore defaults.");
 		int Choice = 0;
@@ -506,13 +496,13 @@ void Game::PrintIntro()
 		"the elusive Goldium. The miners, for reasons of economy and story convenience, have access to "
 		"the same tank of oxygen, and must compete with each other to gather more and more valuable mineral "
 		"deposits from deeper inside the lifeless moon.");
-	Draw->BlankLine();
 }
 
 // Prints the rules. Called by Menu().
 void Game::PrintRules()
 {
 	PrintIntro();
+	Draw->BlankLine();
 	Draw->Text("On each players go, they must decide to head deeper into the moon or back to the ship. " 
 		"Once a miner has chosen to return, the ship begins to wind in their tether and they cannot decide " 
 		"to head back into the fray. Each step on the way down into the moon holds one cache of minerals; "
@@ -548,7 +538,6 @@ void Game::DrawBoard()
 {
 	Draw->SpaceSeperator();
 	// Put together the ship part of the board.
-	// Get ship string from file:
 	std::string ShipString = Ship->GetFileText();
 	// Put in oxygen data:
 	size_t Offset = ShipString.find("OXYGEN: ") + std::string("OXYGEN: ").size();
