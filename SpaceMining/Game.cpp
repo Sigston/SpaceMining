@@ -1,4 +1,4 @@
-// TODO: Cannot do draws.
+// TODO: Fix printing problem.
 
 #include "Game.h"
 #include "HelperFunctions.h"
@@ -164,7 +164,7 @@ void Game::Play()
 		int Counter = 0;
 		for (auto it = PlayerList.begin(); it < PlayerList.end(); ++it)
 		{
-			if ((*it)->GetDepth() == 0)
+			if ((*it)->GetDepth() == 0 && (*it)->IsBack())
 			{
 				++Counter;
 			}
@@ -172,7 +172,7 @@ void Game::Play()
 		if (Counter == PlayerList.size() || Oxygen <= 0)
 		{
 			EndRound();
-			if (RoundCounter == 3)
+			if (RoundCounter >= 3)
 			{
 				IsPlaying = false;
 			}
@@ -401,17 +401,30 @@ void Game::EndRound()
 // Calculates scores and prints them. Calls PrintScores().
 void Game::EndGame()
 {
+	std::vector<std::shared_ptr<Player>> HighScorePlayers;
 	int TopScore = (*PlayerList.begin())->GetScore();
-	char WinChar = (*PlayerList.begin())->GetChar();
 	for (auto it = PlayerList.begin() + 1; it < PlayerList.end(); ++it)
 	{
 		if ((*it)->GetScore() > TopScore)
 		{
 			TopScore = (*it)->GetScore();
-			WinChar = (*it)->GetChar();
 		}
 	}
-	PrintScores(WinChar, TopScore);
+	for (auto it = PlayerList.begin(); it < PlayerList.end(); ++it)
+	{
+		if ((*it)->GetScore() == TopScore)
+		{
+			HighScorePlayers.push_back((*it));
+		}
+	}
+	if (HighScorePlayers.size() == 1)
+	{
+		PrintScores((*HighScorePlayers.begin())->GetChar(), (*HighScorePlayers.begin())->GetScore());
+	}
+	else
+	{
+		PrintScoresDraw(HighScorePlayers);
+	}
 }
 
 /* Menu Logic */
@@ -533,6 +546,47 @@ void Game::PrintScores(char WinChar, int TopScore)
 		"You receive several hundred credits and a free trip home to see your family. The other players must "
 		"spend the rest of their lives mining minerals in the most distant part of the solar system. They also "
 		"have to listen to post-Peter Gabriel Genesis albums.");
+	Draw->SpaceSeperator();
+	Input::Wait();
+}
+
+// Takes a vector of players who have drawn and prints the end of game score spiel.
+void Game::PrintScoresDraw(std::vector<std::shared_ptr<Player>> DrawnPlayers)
+{
+	std::string DrawNature;
+	switch (DrawnPlayers.size())
+	{
+	case 2:
+		DrawNature = "two";
+		break;
+	case 3:
+		DrawNature = "three";
+		break;
+	case 4:
+		DrawNature = "four";
+		break;
+	case 5:
+		DrawNature = "five";
+		break;
+	case 6:
+		DrawNature = "six";
+		break;
+	}
+	std::string Players;
+	for (auto it = DrawnPlayers.begin(); it < DrawnPlayers.end() - 1; ++it)
+	{
+		Players.append("Player " + std::string(1, (*it)->GetChar()) + ", ");
+	}
+	Players.append("and Player " + std::string(1, (*(DrawnPlayers.end() - 1))->GetChar()));
+
+	Draw->SpaceSeperator();
+	Draw->CentralLine("GAME OVER");
+	Draw->BlankLine();
+	Draw->Text("It is that most interesting of game endings: a draw. " + Players + " all scored " 
+		+ std::to_string((*DrawnPlayers.begin())->GetScore()) + " points. This gives us a " + DrawNature + "-fold draw. " 
+		"The company stipulates that in the event of a draw, no one receives a bonus and mining must continue. " 
+		"This saddens all of you, but you thank the creator of the game for his efforts and resolve to play again in the " 
+		"event that you might win next time. In the mean time, have a cup of tea and put your feet up.");
 	Draw->SpaceSeperator();
 	Input::Wait();
 }

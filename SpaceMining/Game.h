@@ -56,6 +56,7 @@ private:
 	void PrintIntro();
 	void PrintRules();
 	void PrintScores(char WinChar, int TopScore);
+	void PrintScoresDraw(std::vector<std::shared_ptr<Player>> DrawnPlayers);
 	void DrawBoard();
 	bool DrawTreasures(int Begin, int End, std::vector<std::string> &Lines);
 
