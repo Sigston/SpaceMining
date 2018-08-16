@@ -57,8 +57,8 @@ private:
 	void PrintRules();
 	void PrintScores(char WinChar, int TopScore);
 	void PrintScoresDraw(std::vector<std::shared_ptr<Player>> DrawnPlayers);
-	void DrawBoard();
-	bool DrawTreasures(int Begin, int End, std::vector<std::string> &Lines);
+	void PrintBoard();
+	bool FormatTreasures(int Begin, int End, std::vector<std::string> &Lines);
 
 	/* Useful Functions */
 	bool PlayerOfDepth(int Depth);

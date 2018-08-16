@@ -1,5 +1,3 @@
-// TODO: Fix printing problem.
-
 #include "Game.h"
 #include "HelperFunctions.h"
 #include "Random.h"
@@ -126,7 +124,7 @@ void Game::Play()
 	while (IsPlaying)
 	{
 		Oxygen -= (*ActivePlayer)->GetTreasureNum();
-		DrawBoard();
+		PrintBoard();
 		// If the player is going down, check if the player wants to go up or down. Move them.
 		if ((*ActivePlayer)->IsGoingDown())
 		{
@@ -344,7 +342,7 @@ void Game::MovePlayer()
 // Called when all players have returned to the ship, or the oxygen has ran out.
 void Game::EndRound()
 {
-	DrawBoard();
+	PrintBoard();
 	std::string Scores;
 	auto FirstPlayer = PlayerList.begin();
 	int DeepestDepth = 0;
@@ -592,7 +590,7 @@ void Game::PrintScoresDraw(std::vector<std::shared_ptr<Player>> DrawnPlayers)
 }
 
 // Draws the ship, the minerals and the players.
-void Game::DrawBoard()
+void Game::PrintBoard()
 {
 	Draw->SpaceSeperator();
 	// Put together the ship part of the board.
@@ -628,16 +626,19 @@ void Game::DrawBoard()
 	bool RemainingTreasures = true;
 	while (RemainingTreasures)
 	{
-		// We are going through the first if statement regardless and printing a dudd line. FIX
 		if ((Begin + TreasuresPerLine) > TreasureList.size())
 		{
-			DrawTreasures(Begin, TreasureList.size(), Lines);
+			FormatTreasures(Begin, TreasureList.size(), Lines);
 			RemainingTreasures = false;
 		}
 		else
 		{
-			DrawTreasures(Begin, Begin + TreasuresPerLine, Lines);
+			FormatTreasures(Begin, Begin + TreasuresPerLine, Lines);
 			Begin += TreasuresPerLine;
+			if (Begin == TreasureList.size()) // In case the number of treasures is a multiple of TreasureList.size()
+			{
+				RemainingTreasures = false;
+			}
 		}
 		MineString.append(Lines[0] + "\n");
 		MineString.append(Lines[1] + "\n");
@@ -651,7 +652,7 @@ void Game::DrawBoard()
 
 // Takes the begin and end indices of the TreasureList and builds the symbols onto a vector of strings.
 // Returns false if the End integer is greater than the size of the TreasureList.
-bool Game::DrawTreasures(int Begin, int End, std::vector<std::string> &Lines)
+bool Game::FormatTreasures(int Begin, int End, std::vector<std::string> &Lines)
 {
 	if (End > TreasureList.size())
 	{
