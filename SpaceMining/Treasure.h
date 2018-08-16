@@ -22,4 +22,3 @@ private:
 	std::string mSymbol;
 	bool mIsTaken;
 };
-

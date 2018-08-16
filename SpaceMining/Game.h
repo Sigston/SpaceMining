@@ -52,9 +52,11 @@ private:
 	void SetSettings();
 
 	/* Drawing Functions */
+	void PrintIntro();
 	void PrintRules();
 	void PrintScores(char WinChar, int TopScore);
 	void DrawBoard();
+	void DrawTreasures(int Begin, int End, std::string &MineString);
 
 	/* Useful Functions */
 	bool PlayerOfDepth(int Depth);

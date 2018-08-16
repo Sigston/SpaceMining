@@ -11,6 +11,7 @@
 Game::Game()
 {
 }
+
 // Deals with the only pointers to memory not managed by smart pointers.
 Game::~Game()
 {
@@ -123,6 +124,8 @@ bool Game::Menu()
 void Game::Play()
 {
 	Refresh();
+	PrintIntro();
+	Input::Wait();
 	bool IsPlaying = true;
 	while (IsPlaying)
 	{
@@ -159,7 +162,7 @@ void Game::Play()
 			}
 			if (Response == 1)
 			{
-				(*ActivePlayer)->PickUpTreasure(TreasureList[(*ActivePlayer)->GetDepth() - 1]);
+				(*ActivePlayer)->AddTreasure(TreasureList[(*ActivePlayer)->GetDepth() - 1]);
 				TreasureList[(*ActivePlayer)->GetDepth() - 1]->Take();
 			}
 		}
@@ -180,6 +183,7 @@ void Game::Play()
 			{
 				IsPlaying = false;
 			}
+			Input::Wait();
 		}
 		else
 		{
@@ -493,18 +497,23 @@ void Game::SetSettings()
 
 /* Drawing Functions */
 
-// Prints the rules. Called by Menu().
-void Game::PrintRules()
+void Game::PrintIntro()
 {
 	Draw->Seperator();
 	Draw->BlankLine();
-	Draw->Text("Welcome to Space Mining! The year is 2056 and you and your friends are Deep Space Miners " 
-		"working for Futuristic Mining Corp Ltd. You have been sent out to a distant moon of an even more " 
-		"distant planet to mine the three minerals which your society depends on: Coppernium, Bronzium, Silverium and " 
-		"the elusive Goldium. The miners, for reasons of economy and story convenience, have access to " 
-		"the same tank of oxygen, and must compete with each other to gather more and more valuable mineral " 
+	Draw->Text("Welcome to Space Mining! The year is 2056 and you and your friends are Deep Space Miners "
+		"working for Futuristic Mining Corp Ltd. You have been sent out to a distant moon of an even more "
+		"distant planet to mine the three minerals which your society depends on: Coppernium, Bronzium, Silverium and "
+		"the elusive Goldium. The miners, for reasons of economy and story convenience, have access to "
+		"the same tank of oxygen, and must compete with each other to gather more and more valuable mineral "
 		"deposits from deeper inside the lifeless moon.");
 	Draw->BlankLine();
+}
+
+// Prints the rules. Called by Menu().
+void Game::PrintRules()
+{
+	PrintIntro();
 	Draw->Text("On each players go, they must decide to head deeper into the moon or back to the ship. " 
 		"Once a miner has chosen to return, the ship begins to wind in their tether and they cannot decide " 
 		"to head back into the fray. Each step on the way down into the moon holds one cache of minerals; "
@@ -552,14 +561,21 @@ void Game::DrawBoard()
 	// Put in oxygen data:
 	size_t Offset = ShipString.find("OXYGEN: ") + std::string("OXYGEN: ").size();
 	ShipString.insert(Offset, std::to_string(Oxygen));
-	// Put in score data:
-	Offset = ShipString.find("SCORE: ") + std::string("SCORE: ").size();
+	// Put in score data and safe players:
 	std::string Scores;
+	std::string SafePlayers;
 	for (auto it = PlayerList.begin(); it < PlayerList.end(); ++it)
 	{
 		Scores.append(std::string(1, (*it)->GetChar()) + ": " + std::to_string((*it)->GetScore()) + "   ");
+		if ((*it)->IsBack())
+		{
+			SafePlayers.append(std::string(1, (*it)->GetChar()) + " ");
+		}
 	}
+	Offset = ShipString.find("SCORE: ") + std::string("SCORE: ").size();
 	ShipString.insert(Offset, Scores);
+	Offset = ShipString.find("SAFE: ") + std::string("SAFE: ").size();
+	ShipString.insert(Offset, SafePlayers);
 	// Print:
 	Draw->MultiLineText(ShipString);
 	Draw->BlankLine();
@@ -567,46 +583,63 @@ void Game::DrawBoard()
 	// Now the mines and the players.
 	std::string MineString; // This is eventually sent to the Draw object.
 	std::vector<std::string> Lines = { "", "", "" }; // Each treasure object is three lines deep.
-	std::string Type = (*TreasureList.begin())->GetType();
-	for (int j = 0; j < TreasureList.size(); ++j)
+	int Begin = 0;
+	int TreasuresPerLine = 8;
+	std::string SymbolString;
+	while (true)
 	{
-		// Print all the treasures of the same type on the same line.
-		std::string SymbolString;
-		if (Type != TreasureList[j]->GetType())
+		if ((Begin + TreasuresPerLine) > TreasureList.size())
 		{
-			MineString.append(Lines[0] + "\n");
-			MineString.append(Lines[1] + "\n");
-			MineString.append(Lines[2] + "\n\n");
-			Type = TreasureList[j]->GetType();
-			Lines = { "", "", "" };
+			DrawTreasures(Begin, TreasureList.size(), MineString);
+			break;
 		}
-		if (TreasureList[j]->IsTaken())
+		else
+		{
+			DrawTreasures(Begin, Begin + TreasuresPerLine, MineString);
+			Begin += TreasuresPerLine;
+		}
+	}
+	// Print all of the above:
+	Draw->MultiLineText(MineString);
+
+	// Padding:
+	Draw->Seperator();
+	Draw->BlankLine();
+}
+
+void Game::DrawTreasures(int Begin, int End, std::string &MineString)
+{
+	std::string SymbolString;
+	std::vector<std::string> Lines = { "", "", "" };
+	for (; Begin < End; ++Begin)
+	{
+		if (TreasureList[Begin]->IsTaken())
 		{
 			SymbolString = TreasurePics[4];
 		}
 		else
 		{
-			SymbolString = TreasureList[j]->GetSymbol();
+			SymbolString = TreasureList[Begin]->GetSymbol();
 		}
-		int Begin = 0;
+		int Start = 0;
 		int Counter = 0;
 		for (int i = 0; i < SymbolString.size(); ++i)
 		{
 			if (SymbolString[i] == '\n')
 			{
-				std::string Temp = SymbolString.substr(Begin, i - Begin);
+				std::string Temp = SymbolString.substr(Start, i - Start);
 				if (Counter == 1)
 				{
 					for (auto it = PlayerList.begin(); it < PlayerList.end(); ++it)
 					{
-						if ((*it)->GetDepth() == j + 1)
+						if ((*it)->GetDepth() == Begin + 1)
 						{
 							Temp[2] = (*it)->GetChar();
 						}
 					}
 				}
 				Lines[Counter].append(Temp);
-				Begin = i + 1;
+				Start = i + 1;
 				++Counter;
 			}
 		}
@@ -617,12 +650,6 @@ void Game::DrawBoard()
 	MineString.append(Lines[0] + "\n");
 	MineString.append(Lines[1] + "\n");
 	MineString.append(Lines[2] + "\n\n");
-	// Print all of the above:
-	Draw->MultiLineText(MineString);
-
-	// Padding:
-	Draw->Seperator();
-	Draw->BlankLine();
 }
 
 /* Useful Functions */
