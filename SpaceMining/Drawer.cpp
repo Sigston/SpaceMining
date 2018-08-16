@@ -103,6 +103,14 @@ void Drawer::BlankLine()
 	std::cout << Output;
 }
 
+// Prints a line of spaces, the seperator, and a line of spaces.
+void Drawer::SpaceSeperator()
+{
+	Seperator();
+	BlankLine();
+	Seperator();
+}
+
 // Prints the user prompt.
 void Drawer::UserPrompt()
 {

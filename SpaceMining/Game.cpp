@@ -499,8 +499,7 @@ void Game::SetSettings()
 
 void Game::PrintIntro()
 {
-	Draw->Seperator();
-	Draw->BlankLine();
+	Draw->SpaceSeperator();
 	Draw->Text("Welcome to Space Mining! The year is 2056 and you and your friends are Deep Space Miners "
 		"working for Futuristic Mining Corp Ltd. You have been sent out to a distant moon of an even more "
 		"distant planet to mine the three minerals which your society depends on: Coppernium, Bronzium, Silverium and "
@@ -527,34 +526,27 @@ void Game::PrintRules()
 		"awarded a bonus by Futuristic Mining Corp Ltd.");
 	Draw->BlankLine();
 	Draw->Text("Have Fun!");
-	Draw->BlankLine();
-	Draw->Seperator();
+	Draw->SpaceSeperator();
 }
 
 // Takes the player character and the topscore and prints the end of game score spiel.
 void Game::PrintScores(char WinChar, int TopScore)
 {
-	Draw->Seperator();
-	Draw->BlankLine();
+	Draw->SpaceSeperator();
 	Draw->CentralLine("GAME OVER");
 	Draw->BlankLine();
 	Draw->Text("Player " + std::string(1, WinChar) + " has won with " + std::to_string(TopScore) + " points. "
 		"You receive several hundred credits and a free trip home to see your family. The other players must "
 		"spend the rest of their lives mining minerals in the most distant part of the solar system. They also "
 		"have to listen to post-Peter Gabriel Genesis albums.");
-	Draw->BlankLine();
-	Draw->Seperator();
+	Draw->SpaceSeperator();
 	Input::Wait();
 }
 
 // Draws the ship, the minerals and the players.
 void Game::DrawBoard()
 {
-	// Padding:
-	Draw->BlankLine();
-	Draw->Seperator();
-	Draw->BlankLine();
-
+	Draw->SpaceSeperator();
 	// Put together the ship part of the board.
 	// Get ship string from file:
 	std::string ShipString = Ship->GetFileText();
@@ -608,10 +600,7 @@ void Game::DrawBoard()
 	}
 	// Print all of the above:
 	Draw->MultiLineText(MineString);
-
-	// Padding:
-	Draw->Seperator();
-	Draw->BlankLine();
+	Draw->SpaceSeperator();
 }
 
 // Takes the begin and end indices of the TreasureList and builds the symbols onto a vector of strings.

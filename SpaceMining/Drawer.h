@@ -13,6 +13,7 @@ public:
 	void CentralLine(std::string Text);
 	void Seperator();
 	void BlankLine();
+	void SpaceSeperator();
 	void UserPrompt();
 
 	/* INLINE FUNCTIONS */
