@@ -56,7 +56,7 @@ private:
 	void PrintRules();
 	void PrintScores(char WinChar, int TopScore);
 	void DrawBoard();
-	void DrawTreasures(int Begin, int End, std::string &MineString);
+	bool DrawTreasures(int Begin, int End, std::vector<std::string> &Lines);
 
 	/* Useful Functions */
 	bool PlayerOfDepth(int Depth);

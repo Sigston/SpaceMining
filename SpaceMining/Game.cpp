@@ -588,16 +588,23 @@ void Game::DrawBoard()
 	std::string SymbolString;
 	while (true)
 	{
+		std::string ExtraBit;
 		if ((Begin + TreasuresPerLine) > TreasureList.size())
 		{
-			DrawTreasures(Begin, TreasureList.size(), MineString);
+			DrawTreasures(Begin, TreasureList.size(), Lines);
+			ExtraBit = "";
 			break;
 		}
 		else
 		{
-			DrawTreasures(Begin, Begin + TreasuresPerLine, MineString);
+			DrawTreasures(Begin, Begin + TreasuresPerLine, Lines);
+			ExtraBit = "\n";
 			Begin += TreasuresPerLine;
 		}
+		MineString.append(Lines[0] + ExtraBit);
+		MineString.append(Lines[1] + ExtraBit);
+		MineString.append(Lines[2] + ExtraBit + ExtraBit);
+		Lines = { "", "", "" };
 	}
 	// Print all of the above:
 	Draw->MultiLineText(MineString);
@@ -607,22 +614,20 @@ void Game::DrawBoard()
 	Draw->BlankLine();
 }
 
-void Game::DrawTreasures(int Begin, int End, std::string &MineString)
+// Takes the begin and end indices of the TreasureList and builds the symbols onto a vector of strings.
+// Returns false if the End integer is greater than the size of the TreasureList.
+bool Game::DrawTreasures(int Begin, int End, std::vector<std::string> &Lines)
 {
+	if (End > TreasureList.size())
+	{
+		return(false);
+	}
 	std::string SymbolString;
-	std::vector<std::string> Lines = { "", "", "" };
 	for (; Begin < End; ++Begin)
 	{
-		if (TreasureList[Begin]->IsTaken())
-		{
-			SymbolString = TreasurePics[4];
-		}
-		else
-		{
-			SymbolString = TreasureList[Begin]->GetSymbol();
-		}
 		int Start = 0;
 		int Counter = 0;
+		SymbolString = (TreasureList[Begin]->IsTaken()) ? TreasurePics[4] : TreasureList[Begin]->GetSymbol();
 		for (int i = 0; i < SymbolString.size(); ++i)
 		{
 			if (SymbolString[i] == '\n')
@@ -647,9 +652,7 @@ void Game::DrawTreasures(int Begin, int End, std::string &MineString)
 		Lines[1].append("   ");
 		Lines[2].append("   ");
 	}
-	MineString.append(Lines[0] + "\n");
-	MineString.append(Lines[1] + "\n");
-	MineString.append(Lines[2] + "\n\n");
+	return(true);
 }
 
 /* Useful Functions */
